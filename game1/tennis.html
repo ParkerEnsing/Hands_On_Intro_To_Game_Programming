@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+    </head>
+
+    <body>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <script>
+            var canvas;
+            var canvasContext;
+            var ballX, ballY;
+            var frameRate = 60;
+
+            window.onload = function() {
+                canvas = document.getElementById("gameCanvas");
+                canvasContext = canvas.getContext("2d");
+
+                ballX = canvas.width/2
+                ballY = canvas.height/2
+
+                setInterval(drawEverything, 1000);
+            }
+
+            function drawEverything() {
+                ballX += 50;
+
+                // Fill background with black
+                canvasContext.fillStyle = "black";
+                canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw the ball
+                canvasContext.fillStyle = "white";
+                canvasContext.beginPath();
+                canvasContext.arc(ballX, ballY, 10, 0, Math.PI*2, true)
+                canvasContext.fill();
+
+                // Draw the left bumper
+
+
+                // Draw the right bumper
+
+            }
+        </script>
+    </body>
+</html>
