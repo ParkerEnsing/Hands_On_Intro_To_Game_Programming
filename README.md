@@ -1,0 +1,2 @@
+# Hands_On_Intro_To_Game_Programming
+Hands-On Intro To Game Programming by Chris DeLeon aims to teach introductory lessons in game development by recreating classica arcade game with JavaScript and HTML5.
