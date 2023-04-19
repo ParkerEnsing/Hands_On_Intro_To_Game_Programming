@@ -12,7 +12,7 @@
             var canvasContext;
 
             var ballX = 75, ballY = 75;
-            var ballSpeedX = 6, ballSpeedY = 6;
+            var ballSpeedX = 4, ballSpeedY = 4;
             const BALL_RADIUS = 10;
 
             const BUMPER_WIDTH = 10, BUMPER_HEIGHT = 100;
@@ -34,17 +34,17 @@
 
                 canvas.addEventListener('mousemove', function(evt) {
                     var mousePos = calculateMousePosition(evt);
-                    bumperLeftY = mousePos.y - BUMPER_HEIGHT/2;
-                    bumperRightY = mousePos.y - BUMPER_HEIGHT/2; // Centers the bumper on mouse Y pos
+                    bumperLeftY = mousePos.y - 0.5 * BUMPER_HEIGHT;
+                    bumperRightY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
                 });
 
                 centerLineWidth = 6;
-                centerLineX = canvas.width/2 - centerLineWidth/2;
+                centerLineX = 0.5 * canvas.width - 0.5 * centerLineWidth;
 
                 setInterval(function() {
                     moveEverything();
                     drawEverything();
-                }, 1000 / framesPerSecond);
+                }, 0.001 * framesPerSecond);
             }
             
             function calculateMousePosition(evt) {
@@ -87,17 +87,30 @@
                 }
             }
 
-            function checkBallBumperOverlap(ballCenterX, ballCenterY, rectCenterX, rectCenterY) {
-                var displacementX = Math.abs(ballCenterX - rectCenterX);
-                var displacementY = Math.abs(ballCenterY - rectCenterY);
+            function circleRectOverlap(ballCenterX, ballCenterY, ballRadius, rectCenterX, rectCenterY, rectW, rectH) {
+                var distanceX = Math.abs(ballCenterX - rectCenterX);
+                var distanceY = Math.abs(ballCenterY - rectCenterY);
 
-                
+                if (distanceX >= 0.5 * rectW + ballRadius) {return false}
+                if (distanceY >= 0.5 * rectH + ballRadius) {return false}
+
+                if (distanceX <= 0.5 * rectW) {return true}
+                if (distanceY <= 0.5 * rectH) {return true}
+
+                var cornerDistX = distanceX - 0.5 * rectW;
+                var cornerDistY = distanceY - 0.5 * rectH;
+                return cornerDistX * cornerDistX + cornerDistY * cornerDistY < ballRadius * ballRadius
             }
 
             function moveEverything() {
                 checkBallPosition(0, 0, canvas.width, canvas.height, BALL_RADIUS);
 
                 checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
+
+                if (circleRectOverlap(ballX, ballY, BALL_RADIUS, bumperLeftX+0.5*BUMPER_WIDTH, bumperLeftY+0.5*BUMPER_HEIGHT, BUMPER_WIDTH, BUMPER_HEIGHT)
+                || circleRectOverlap(ballX, ballY, BALL_RADIUS, bumperRightX+0.5*BUMPER_WIDTH, bumperRightY+0.5*BUMPER_HEIGHT, BUMPER_WIDTH, BUMPER_HEIGHT)) {
+                    ballSpeedX *= -1
+                }
 
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
@@ -111,7 +124,7 @@
             function colorCircle(centerX, centerY, radius, fillColor) {
                 canvasContext.fillStyle = fillColor;
                 canvasContext.beginPath();
-                canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+                canvasContext.arc(centerX, centerY, radius, 0, 2*Math.PI, true);
                 canvasContext.fill();
             }
 
