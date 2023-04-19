@@ -10,20 +10,47 @@
         <script>
             var canvas;
             var canvasContext;
+
             var ballX = 75, ballY = 75;
             var ballSpeedX = 6, ballSpeedY = 6;
-            var ballRadius = 10;
+            const ballRadius = 10;
 
+            const bumperWidth = 10, bumperHeight = 100;
+            const bumperSpaceX = 10;
+            var bumperLeftX, bumperLeftY;
+            var bumperRightX, bumperRightY;
+
+            var centerLineWidth, centerLineX;
+            
             window.onload = function() {
                 canvas = document.getElementById("gameCanvas");
                 canvasContext = canvas.getContext("2d");
 
                 var framesPerSecond = 30;
+                bumperLeftX = bumperSpaceX;
+                bumperLeftY = canvas.height/2 - bumperHeight/2;
+                bumperRightX = canvas.width - bumperSpaceX - bumperWidth;
+                bumperRightY = bumperLeftY;
+
+                centerLineWidth = 6;
+                centerLineX = canvas.width/2 - centerLineWidth/2;
 
                 setInterval(function() {
                     moveEverything();
                     drawEverything();
                 }, 1000 / framesPerSecond);
+            }
+            
+            function calculateMousePosition(evt) {
+                var rect = canvas.getBoundingClientRect(), root = document.documentElement;
+
+                mouseX = evt.clientX - rect.left - root.scrollLeft;
+                mouseY = evt.clientY - rect.top - root.scrollTop;
+
+                return {
+                    x: mouseX,
+                    y: mouseY
+                };
             }
 
             function moveEverything() {
@@ -39,22 +66,33 @@
                 ballY += ballSpeedY;
             }
 
+            function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
+                canvasContext.fillStyle = fillColor;
+                canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight)
+            }
+
+            function colorCircle(centerX, centerY, radius, fillColor) {
+                canvasContext.fillStyle = fillColor;
+                canvasContext.beginPath();
+                canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+                canvasContext.fill();
+            }
+
             function drawEverything() {
                 // Fill background with black
-                canvasContext.fillStyle = "black";
-                canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+                colorRect(0, 0, canvas.width, canvas.height, 'black');
 
                 // Draw the ball
-                canvasContext.fillStyle = "white";
-                canvasContext.beginPath();
-                canvasContext.arc(ballX, ballY, ballRadius, 0, Math.PI*2, true)
-                canvasContext.fill();
+                colorCircle(ballX, ballY, ballRadius, 'white')
 
                 // Draw the left bumper
-
+                colorRect(bumperLeftX, bumperLeftY, bumperWidth, bumperHeight, 'white');
 
                 // Draw the right bumper
+                colorRect(bumperRightX, bumperRightY, bumperWidth, bumperHeight, 'white');
 
+                // Draw the center line
+                colorRect(centerLineX, 0, centerLineWidth, canvas.height, 'white');
             }
         </script>
     </body>
