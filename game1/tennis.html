@@ -10,22 +10,26 @@
         <script>
             var canvas;
             var canvasContext;
-            var ballX, ballY;
-            var frameRate = 60;
+            var ballX = 75, ballY = 75;
+            var ballSpeedX = 2
 
             window.onload = function() {
                 canvas = document.getElementById("gameCanvas");
                 canvasContext = canvas.getContext("2d");
 
-                ballX = canvas.width/2
-                ballY = canvas.height/2
+                var framesPerSecond = 30
 
-                setInterval(drawEverything, 1000);
+                setInterval(function() {
+                    moveEverything();
+                    drawEverything();
+                }, 1000 / framesPerSecond);
+            }
+
+            function moveEverything() {
+                ballX += ballSpeedX;
             }
 
             function drawEverything() {
-                ballX += 50;
-
                 // Fill background with black
                 canvasContext.fillStyle = "black";
                 canvasContext.fillRect(0, 0, canvas.width, canvas.height);
