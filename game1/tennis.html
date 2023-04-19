@@ -13,10 +13,10 @@
 
             var ballX = 75, ballY = 75;
             var ballSpeedX = 6, ballSpeedY = 6;
-            const ballRadius = 10;
+            const BALL_RADIUS = 10;
 
-            const bumperWidth = 10, bumperHeight = 100;
-            const bumperSpaceX = 10;
+            const BUMPER_WIDTH = 10, BUMPER_HEIGHT = 100;
+            const BUMPER_SPACE_X = 10;
             var bumperLeftX, bumperLeftY;
             var bumperRightX, bumperRightY;
 
@@ -26,11 +26,17 @@
                 canvas = document.getElementById("gameCanvas");
                 canvasContext = canvas.getContext("2d");
 
+
                 var framesPerSecond = 30;
-                bumperLeftX = bumperSpaceX;
-                bumperLeftY = canvas.height/2 - bumperHeight/2;
-                bumperRightX = canvas.width - bumperSpaceX - bumperWidth;
-                bumperRightY = bumperLeftY;
+
+                bumperLeftX = BUMPER_SPACE_X;
+                bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
+
+                canvas.addEventListener('mousemove', function(evt) {
+                    var mousePos = calculateMousePosition(evt);
+                    bumperLeftY = mousePos.y - BUMPER_HEIGHT/2;
+                    bumperRightY = mousePos.y - BUMPER_HEIGHT/2; // Centers the bumper on mouse Y pos
+                });
 
                 centerLineWidth = 6;
                 centerLineX = canvas.width/2 - centerLineWidth/2;
@@ -54,12 +60,28 @@
             }
 
             function moveEverything() {
-                if (ballX > canvas.width - ballRadius || ballX < ballRadius) {
+                if (ballX > canvas.width - BALL_RADIUS || ballX < BALL_RADIUS) {
                     ballSpeedX *= -1;
                 }
 
-                if (ballY > canvas.height - ballRadius || ballY < ballRadius) {
+                if (ballY > canvas.height - BALL_RADIUS || ballY < BALL_RADIUS) {
                     ballSpeedY *= -1;
+                }
+
+                if (bumperLeftY < 0) {
+                    bumperLeftY = 0;
+                }
+
+                if (bumperLeftY > canvas.height - BUMPER_HEIGHT) {
+                    bumperLeftY = canvas.height - BUMPER_HEIGHT;
+                }
+
+                if (bumperRightY < 0) {
+                    bumperRightY = 0;
+                }
+
+                if (bumperRightY > canvas.height - BUMPER_HEIGHT) {
+                    bumperRightY = canvas.height - BUMPER_HEIGHT;
                 }
 
                 ballX += ballSpeedX;
@@ -83,13 +105,13 @@
                 colorRect(0, 0, canvas.width, canvas.height, 'black');
 
                 // Draw the ball
-                colorCircle(ballX, ballY, ballRadius, 'white')
+                colorCircle(ballX, ballY, BALL_RADIUS, 'white')
 
                 // Draw the left bumper
-                colorRect(bumperLeftX, bumperLeftY, bumperWidth, bumperHeight, 'white');
+                colorRect(bumperLeftX, bumperLeftY, BUMPER_WIDTH, BUMPER_HEIGHT, 'white');
 
                 // Draw the right bumper
-                colorRect(bumperRightX, bumperRightY, bumperWidth, bumperHeight, 'white');
+                colorRect(bumperRightX, bumperRightY, BUMPER_WIDTH, BUMPER_HEIGHT, 'white');
 
                 // Draw the center line
                 colorRect(centerLineX, 0, centerLineWidth, canvas.height, 'white');
