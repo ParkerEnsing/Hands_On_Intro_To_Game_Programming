@@ -11,7 +11,7 @@
             var canvas;
             var canvasContext;
 
-            var ballX = 75, ballY = 75;
+            var ballX, ballY;
             var ballSpeedX = 4, ballSpeedY = 4;
             const BALL_RADIUS = 10;
 
@@ -23,13 +23,33 @@
             var centerLineWidth, centerLineX;
 
             var scoreLeft = 0; scoreRight = 0;
+
+            function randomPosOrNeg() {
+                var rando;
+
+                if (Math.random() < 0.5) {
+                    rando = -1;
+                } else {
+                    rando = 1;
+                }
+
+                return rando
+            }
+
+            function newBall() {
+                ballX = 0.5 * canvas.width;
+                ballY = 0.5 * canvas.height;
+
+                ballSpeedX *= randomPosOrNeg();
+                ballSpeedY *= randomPosOrNeg();
+            }
             
             window.onload = function() {
                 canvas = document.getElementById("gameCanvas");
                 canvasContext = canvas.getContext("2d");
 
-
                 var framesPerSecond = 30;
+                newBall();
 
                 bumperLeftX = BUMPER_SPACE_X;
                 bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
@@ -86,10 +106,12 @@
 
                 if (ballX < xMin + buffer) {
                     scoreRight += 1;
+                    newBall();
                 }
 
                 if (ballX > xMax - buffer) {
                     scoreLeft += 1;
+                    newBall();
                 }
             }
 
@@ -105,7 +127,7 @@
 
                 var cornerDistX = distanceX - 0.5 * rectW;
                 var cornerDistY = distanceY - 0.5 * rectH;
-                return cornerDistX * cornerDistX + cornerDistY * cornerDistY < ballRadius * ballRadius
+                return cornerDistX * cornerDistX + cornerDistY * cornerDistY < ballRadius * ballRadius;
             }
 
             function moveEverything() {
