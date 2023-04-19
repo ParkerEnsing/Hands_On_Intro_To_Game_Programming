@@ -11,7 +11,7 @@
             var canvas;
             var canvasContext;
             var ballX = 75, ballY = 75;
-            var ballSpeedX = 2;
+            var ballSpeedX = 6, ballSpeedY = 6;
             var ballRadius = 10;
 
             window.onload = function() {
@@ -31,8 +31,12 @@
                     ballSpeedX *= -1;
                 }
 
+                if (ballY > canvas.height - ballRadius || ballY < ballRadius) {
+                    ballSpeedY *= -1;
+                }
+
                 ballX += ballSpeedX;
-                console.log(ballSpeedX);
+                ballY += ballSpeedY;
             }
 
             function drawEverything() {
