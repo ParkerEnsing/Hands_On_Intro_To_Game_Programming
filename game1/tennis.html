@@ -11,13 +11,14 @@
             var canvas;
             var canvasContext;
             var ballX = 75, ballY = 75;
-            var ballSpeedX = 2
+            var ballSpeedX = 2;
+            var ballRadius = 10;
 
             window.onload = function() {
                 canvas = document.getElementById("gameCanvas");
                 canvasContext = canvas.getContext("2d");
 
-                var framesPerSecond = 30
+                var framesPerSecond = 30;
 
                 setInterval(function() {
                     moveEverything();
@@ -26,7 +27,12 @@
             }
 
             function moveEverything() {
+                if (ballX > canvas.width - ballRadius || ballX < ballRadius) {
+                    ballSpeedX *= -1;
+                }
+
                 ballX += ballSpeedX;
+                console.log(ballSpeedX);
             }
 
             function drawEverything() {
@@ -37,7 +43,7 @@
                 // Draw the ball
                 canvasContext.fillStyle = "white";
                 canvasContext.beginPath();
-                canvasContext.arc(ballX, ballY, 10, 0, Math.PI*2, true)
+                canvasContext.arc(ballX, ballY, ballRadius, 0, Math.PI*2, true)
                 canvasContext.fill();
 
                 // Draw the left bumper
