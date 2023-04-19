@@ -59,30 +59,38 @@
                 };
             }
 
-            function moveEverything() {
-                if (ballX > canvas.width - BALL_RADIUS || ballX < BALL_RADIUS) {
-                    ballSpeedX *= -1;
-                }
-
-                if (ballY > canvas.height - BALL_RADIUS || ballY < BALL_RADIUS) {
-                    ballSpeedY *= -1;
-                }
-
-                if (bumperLeftY < 0) {
+            function checkBumperPosition(yMin, yMax) {
+                if (bumperLeftY < yMin) {
                     bumperLeftY = 0;
                 }
 
-                if (bumperLeftY > canvas.height - BUMPER_HEIGHT) {
-                    bumperLeftY = canvas.height - BUMPER_HEIGHT;
+                if (bumperLeftY > yMax) {
+                    bumperLeftY = yMax;
                 }
 
-                if (bumperRightY < 0) {
+                if (bumperRightY < yMin) {
                     bumperRightY = 0;
                 }
 
-                if (bumperRightY > canvas.height - BUMPER_HEIGHT) {
-                    bumperRightY = canvas.height - BUMPER_HEIGHT;
+                if (bumperRightY > yMax) {
+                    bumperRightY = yMax;
                 }
+            }
+
+            function checkBallPosition(xMin, yMin, xMax, yMax, buffer) {
+                if (ballX > xMax - buffer || ballX < xMin + buffer) {
+                    ballSpeedX *= -1;
+                }
+
+                if (ballY > yMax - buffer || ballY < yMin + buffer) {
+                    ballSpeedY *= -1;
+                }
+            }
+
+            function moveEverything() {
+                checkBallPosition(0, 0, canvas.width, canvas.height, BALL_RADIUS);
+
+                checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
 
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
@@ -98,6 +106,10 @@
                 canvasContext.beginPath();
                 canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
                 canvasContext.fill();
+            }
+
+            function checkBallBumperOverlap(ballCenterX, ballCenterY, rectCenterX, rectCenterY) {
+                var displacementX = Math.abs(ballX - rectX);
             }
 
             function drawEverything() {
