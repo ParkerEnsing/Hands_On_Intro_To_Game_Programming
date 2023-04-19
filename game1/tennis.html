@@ -21,6 +21,8 @@
             var bumperRightX, bumperRightY;
 
             var centerLineWidth, centerLineX;
+
+            var scoreLeft = 0; scoreRight = 0;
             
             window.onload = function() {
                 canvas = document.getElementById("gameCanvas");
@@ -78,12 +80,16 @@
             }
 
             function checkBallPosition(xMin, yMin, xMax, yMax, buffer) {
-                if (ballX > xMax - buffer || ballX < xMin + buffer) {
-                    ballSpeedX *= -1;
-                }
-
                 if (ballY > yMax - buffer || ballY < yMin + buffer) {
                     ballSpeedY *= -1;
+                }
+
+                if (ballX < xMin + buffer) {
+                    scoreRight += 1;
+                }
+
+                if (ballX > xMax - buffer) {
+                    scoreLeft += 1;
                 }
             }
 
