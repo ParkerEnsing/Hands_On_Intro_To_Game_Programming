@@ -25,6 +25,9 @@
             // Center Line Parameters
             const CENTER_LINE_WIDTH = 6;
 
+            // Text Parameters
+            const TEXT_MARGIN = 100;
+
             // Gameplay Parameters
             var scoreLeft = 0; scoreRight = 0;
             const INITIAL_BALL_SPEED_X = 3, INITIAL_BALL_SPEED_Y = 3;
@@ -43,12 +46,13 @@
                 // Determine bumper placement
                 bumperLeftX = BUMPER_SPACE_X;
                 bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
+                bumperRightY = 0.5 * canvas.height - 0.5 * BUMPER_HEIGHT
 
                 // Create mouse event listener for user input
                 canvas.addEventListener("mousemove", function(evt) {
                     var mousePos = calculateMousePosition(evt);
                     bumperLeftY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
-                    bumperRightY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
+                    //bumperRightY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
                 });
 
                 // Per frame calculation
@@ -165,6 +169,14 @@
                 canvasContext.stroke();
             }
 
+            // Write text on the canvas
+            function text(message, textX, textY, alignment, fillColor) {
+                canvasContext.font = "48px Arial";
+                canvasContext.fillStyle = fillColor;
+                canvasContext.textAlign = alignment;
+                canvasContext.fillText(message, textX, textY);
+            }
+
             // Calculates actors' positions
             function moveEverything() {
                 checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
@@ -194,6 +206,10 @@
 
                 // Draw the center line
                 dashedLine(0.5 * canvas.width, 0, 0.5 * canvas.width, canvas.height, CENTER_LINE_WIDTH, 0.1 * canvas.height, 0.05 * canvas.height, "white");
+
+                // Draw scores
+                text(scoreLeft, TEXT_MARGIN, TEXT_MARGIN, "left", "white"); // left score
+                text(scoreRight, canvas.width - TEXT_MARGIN, TEXT_MARGIN, "right", "white"); // right score
             }
         </script>
     </body>
