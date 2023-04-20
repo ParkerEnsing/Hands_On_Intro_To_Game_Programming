@@ -108,37 +108,35 @@
                 }
             }
 
-            // Determines ball behavior
+            // Determines ball behavior based on its position
             function checkBallPosition(xMin, yMin, xMax, yMax, buffer) {
                 if (ballY > yMax - buffer || ballY < yMin + buffer) {
                     ballSpeedY *= -1;
                 }
 
                 if (ballX < xMin + buffer) {
-                    scoreRight += 1;
-                    resetBall();
+                    console.log("Hit left edge")
+                    if (ballY > bumperLeftY && ballY < bumperLeftY + BUMPER_HEIGHT) {
+                        ballSpeedX *= -1;
+                        return true;
+                    } else {
+                        scoreRight += 1;
+                        resetBall();
+                        return false;
+                    }
                 }
 
                 if (ballX > xMax - buffer) {
-                    scoreLeft += 1;
-                    resetBall();
+                    console.log("Hit right edge")
+                    if (ballY > bumperRightY && ballY < bumperRightY + BUMPER_HEIGHT) {
+                        ballSpeedX *= -1;
+                        return true;
+                    } else {
+                        scoreLeft += 1;
+                        resetBall();
+                        return false;
+                    }
                 }
-            }
-
-            // Determines if the ball overlaps with a bumper
-            function circleRectOverlap(ballCenterX, ballCenterY, ballRadius, rectCenterX, rectCenterY, rectW, rectH) {
-                var distanceX = Math.abs(ballCenterX - rectCenterX);
-                var distanceY = Math.abs(ballCenterY - rectCenterY);
-
-                if (distanceX >= 0.5 * rectW + ballRadius) {return false}
-                if (distanceY >= 0.5 * rectH + ballRadius) {return false}
-
-                if (distanceX <= 0.5 * rectW) {return true}
-                if (distanceY <= 0.5 * rectH) {return true}
-
-                var cornerDistX = distanceX - 0.5 * rectW;
-                var cornerDistY = distanceY - 0.5 * rectH;
-                return cornerDistX * cornerDistX + cornerDistY * cornerDistY < ballRadius * ballRadius;
             }
 
             // Draws filled rectangles
@@ -169,15 +167,9 @@
 
             // Calculates actors' positions
             function moveEverything() {
-                checkBallPosition(0, 0, canvas.width, canvas.height, BALL_RADIUS);
-
                 checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
 
-                if (circleRectOverlap(ballX, ballY, BALL_RADIUS, bumperLeftX+0.5*BUMPER_WIDTH, bumperLeftY+0.5*BUMPER_HEIGHT, BUMPER_WIDTH, BUMPER_HEIGHT)
-                || circleRectOverlap(ballX, ballY, BALL_RADIUS, bumperRightX+0.5*BUMPER_WIDTH, bumperRightY+0.5*BUMPER_HEIGHT, BUMPER_WIDTH, BUMPER_HEIGHT)) {
-                    
-                    ballSpeedX *= -1
-
+                if (checkBallPosition(0, 0, canvas.width, canvas.height, BALL_RADIUS)) {
                     if (Math.abs(ballSpeedX) == INITIAL_BALL_SPEED_X) {ballSpeedX = NORMAL_BALL_SPEED_X * ballSpeedX / Math.abs(ballSpeedX)}
                     if (Math.abs(ballSpeedY) == INITIAL_BALL_SPEED_Y) {ballSpeedY = NORMAL_BALL_SPEED_Y * ballSpeedY / Math.abs(ballSpeedY)}
                 }
