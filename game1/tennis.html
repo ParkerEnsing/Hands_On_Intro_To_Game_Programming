@@ -11,64 +11,56 @@
             var canvas;
             var canvasContext;
 
+            // Ball Parameters
             var ballX, ballY;
             var ballSpeedX = 4, ballSpeedY = 4;
             const BALL_RADIUS = 10;
 
+            // Bumper Parameters
             const BUMPER_WIDTH = 10, BUMPER_HEIGHT = 100;
             const BUMPER_SPACE_X = 10;
             var bumperLeftX, bumperLeftY;
             var bumperRightX, bumperRightY;
 
-            var centerLineWidth, centerLineX;
+            // Center Line Parameters
+            const CENTER_LINE_WIDTH = 6;
+            var centerLineX;
 
+            // Gameplay Parameters
             var scoreLeft = 0; scoreRight = 0;
-
-            function randomPosOrNeg() {
-                var rando;
-
-                if (Math.random() < 0.5) {
-                    rando = -1;
-                } else {
-                    rando = 1;
-                }
-
-                return rando
-            }
-
-            function newBall() {
-                ballX = 0.5 * canvas.width;
-                ballY = 0.5 * canvas.height;
-
-                ballSpeedX *= randomPosOrNeg();
-                ballSpeedY *= randomPosOrNeg();
-            }
             
+            // Loads game in browser
             window.onload = function() {
+                // Set canvas properties
                 canvas = document.getElementById("gameCanvas");
                 canvasContext = canvas.getContext("2d");
 
+                // Initialize the game
                 var framesPerSecond = 30;
-                newBall();
+                resetBall();
 
+                // Determine bumper placement
                 bumperLeftX = BUMPER_SPACE_X;
                 bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
 
+                // Set center line placement
+                centerLineX = 0.5 * canvas.width - 0.5 * CENTER_LINE_WIDTH;
+
+                // Create mouse event listener for user input
                 canvas.addEventListener('mousemove', function(evt) {
                     var mousePos = calculateMousePosition(evt);
-                    bumperLeftY = mousePos.y - 0.5 * BUMPER_HEIGHT;
+                    bumperLeftY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
                     bumperRightY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
                 });
 
-                centerLineWidth = 6;
-                centerLineX = 0.5 * canvas.width - 0.5 * centerLineWidth;
-
+                // Per frame calculation
                 setInterval(function() {
                     moveEverything();
                     drawEverything();
                 }, 0.001 * framesPerSecond);
             }
-            
+
+            // Determines the mouse position
             function calculateMousePosition(evt) {
                 var rect = canvas.getBoundingClientRect(), root = document.documentElement;
 
@@ -80,7 +72,23 @@
                     y: mouseY
                 };
             }
+            
+            // Outputs 1 or -1 randomly
+            // Used for randomly deciding direction
+            function randomPosOrNeg() {
+                if (Math.random() < 0.5) {return -1} else {return 1}
+            }
 
+            // Places the ball back in the center and gives it a random direction of motion
+            function resetBall() {
+                ballX = 0.5 * canvas.width;
+                ballY = 0.5 * canvas.height;
+
+                ballSpeedX *= randomPosOrNeg();
+                ballSpeedY *= randomPosOrNeg();
+            }
+
+            // Keeps the bumpers within the canvas
             function checkBumperPosition(yMin, yMax) {
                 if (bumperLeftY < yMin) {
                     bumperLeftY = 0;
@@ -99,6 +107,7 @@
                 }
             }
 
+            // Determines ball behavior
             function checkBallPosition(xMin, yMin, xMax, yMax, buffer) {
                 if (ballY > yMax - buffer || ballY < yMin + buffer) {
                     ballSpeedY *= -1;
@@ -106,15 +115,16 @@
 
                 if (ballX < xMin + buffer) {
                     scoreRight += 1;
-                    newBall();
+                    resetBall();
                 }
 
                 if (ballX > xMax - buffer) {
                     scoreLeft += 1;
-                    newBall();
+                    resetBall();
                 }
             }
 
+            // Determines if the ball overlaps with a bumper
             function circleRectOverlap(ballCenterX, ballCenterY, ballRadius, rectCenterX, rectCenterY, rectW, rectH) {
                 var distanceX = Math.abs(ballCenterX - rectCenterX);
                 var distanceY = Math.abs(ballCenterY - rectCenterY);
@@ -130,6 +140,21 @@
                 return cornerDistX * cornerDistX + cornerDistY * cornerDistY < ballRadius * ballRadius;
             }
 
+            // Draws filled rectangles
+            function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
+                canvasContext.fillStyle = fillColor;
+                canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight)
+            }
+
+            // Draws filled circles
+            function colorCircle(centerX, centerY, radius, fillColor) {
+                canvasContext.fillStyle = fillColor;
+                canvasContext.beginPath();
+                canvasContext.arc(centerX, centerY, radius, 0, 2*Math.PI, true);
+                canvasContext.fill();
+            }
+
+            // Calculates actors' positions
             function moveEverything() {
                 checkBallPosition(0, 0, canvas.width, canvas.height, BALL_RADIUS);
 
@@ -144,18 +169,7 @@
                 ballY += ballSpeedY;
             }
 
-            function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
-                canvasContext.fillStyle = fillColor;
-                canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight)
-            }
-
-            function colorCircle(centerX, centerY, radius, fillColor) {
-                canvasContext.fillStyle = fillColor;
-                canvasContext.beginPath();
-                canvasContext.arc(centerX, centerY, radius, 0, 2*Math.PI, true);
-                canvasContext.fill();
-            }
-
+            // Draws game actors in the canvas
             function drawEverything() {
                 // Fill background with black
                 colorRect(0, 0, canvas.width, canvas.height, 'black');
@@ -170,7 +184,7 @@
                 colorRect(bumperRightX, bumperRightY, BUMPER_WIDTH, BUMPER_HEIGHT, 'white');
 
                 // Draw the center line
-                colorRect(centerLineX, 0, centerLineWidth, canvas.height, 'white');
+                colorRect(centerLineX, 0, CENTER_LINE_WIDTH, canvas.height, 'white');
             }
         </script>
     </body>
