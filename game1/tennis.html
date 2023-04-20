@@ -13,7 +13,7 @@
 
             // Ball Parameters
             var ballX, ballY;
-            var ballSpeedX = 4, ballSpeedY = 4;
+            var ballSpeedX, ballSpeedY;
             const BALL_RADIUS = 10;
 
             // Bumper Parameters
@@ -24,10 +24,11 @@
 
             // Center Line Parameters
             const CENTER_LINE_WIDTH = 6;
-            var centerLineX;
 
             // Gameplay Parameters
             var scoreLeft = 0; scoreRight = 0;
+            const INITIAL_BALL_SPEED_X = 3, INITIAL_BALL_SPEED_Y = 3;
+            const NORMAL_BALL_SPEED_X = 6, NORMAL_BALL_SPEED_Y = 6;
             
             // Loads game in browser
             window.onload = function() {
@@ -43,11 +44,8 @@
                 bumperLeftX = BUMPER_SPACE_X;
                 bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
 
-                // Set center line placement
-                centerLineX = 0.5 * canvas.width - 0.5 * CENTER_LINE_WIDTH;
-
                 // Create mouse event listener for user input
-                canvas.addEventListener('mousemove', function(evt) {
+                canvas.addEventListener("mousemove", function(evt) {
                     var mousePos = calculateMousePosition(evt);
                     bumperLeftY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
                     bumperRightY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
@@ -83,6 +81,9 @@
             function resetBall() {
                 ballX = 0.5 * canvas.width;
                 ballY = 0.5 * canvas.height;
+
+                ballSpeedX = INITIAL_BALL_SPEED_X;
+                ballSpeedY = INITIAL_BALL_SPEED_Y;
 
                 ballSpeedX *= randomPosOrNeg();
                 ballSpeedY *= randomPosOrNeg();
@@ -154,6 +155,18 @@
                 canvasContext.fill();
             }
 
+            // Draws dashed lines
+            function dashedLine(startX, startY, endX, endY, lineWidth, linePixels, gapPixels, fillColor) {
+                canvasContext.setLineDash([linePixels, gapPixels]);
+                canvasContext.lineWidth = lineWidth;
+                canvasContext.strokeStyle = fillColor;
+
+                canvasContext.beginPath();
+                canvasContext.moveTo(startX, startY);
+                canvasContext.lineTo(endX, endY);
+                canvasContext.stroke();
+            }
+
             // Calculates actors' positions
             function moveEverything() {
                 checkBallPosition(0, 0, canvas.width, canvas.height, BALL_RADIUS);
@@ -162,7 +175,11 @@
 
                 if (circleRectOverlap(ballX, ballY, BALL_RADIUS, bumperLeftX+0.5*BUMPER_WIDTH, bumperLeftY+0.5*BUMPER_HEIGHT, BUMPER_WIDTH, BUMPER_HEIGHT)
                 || circleRectOverlap(ballX, ballY, BALL_RADIUS, bumperRightX+0.5*BUMPER_WIDTH, bumperRightY+0.5*BUMPER_HEIGHT, BUMPER_WIDTH, BUMPER_HEIGHT)) {
+                    
                     ballSpeedX *= -1
+
+                    if (Math.abs(ballSpeedX) == INITIAL_BALL_SPEED_X) {ballSpeedX = NORMAL_BALL_SPEED_X * ballSpeedX / Math.abs(ballSpeedX)}
+                    if (Math.abs(ballSpeedY) == INITIAL_BALL_SPEED_Y) {ballSpeedY = NORMAL_BALL_SPEED_Y * ballSpeedY / Math.abs(ballSpeedY)}
                 }
 
                 ballX += ballSpeedX;
@@ -172,19 +189,19 @@
             // Draws game actors in the canvas
             function drawEverything() {
                 // Fill background with black
-                colorRect(0, 0, canvas.width, canvas.height, 'black');
+                colorRect(0, 0, canvas.width, canvas.height, "black");
 
                 // Draw the ball
-                colorCircle(ballX, ballY, BALL_RADIUS, 'white')
+                colorCircle(ballX, ballY, BALL_RADIUS, "white")
 
                 // Draw the left bumper
-                colorRect(bumperLeftX, bumperLeftY, BUMPER_WIDTH, BUMPER_HEIGHT, 'white');
+                colorRect(bumperLeftX, bumperLeftY, BUMPER_WIDTH, BUMPER_HEIGHT, "white");
 
                 // Draw the right bumper
-                colorRect(bumperRightX, bumperRightY, BUMPER_WIDTH, BUMPER_HEIGHT, 'white');
+                colorRect(bumperRightX, bumperRightY, BUMPER_WIDTH, BUMPER_HEIGHT, "white");
 
                 // Draw the center line
-                colorRect(centerLineX, 0, CENTER_LINE_WIDTH, canvas.height, 'white');
+                dashedLine(0.5 * canvas.width, 0, 0.5 * canvas.width, canvas.height, CENTER_LINE_WIDTH, 0.1 * canvas.height, 0.05 * canvas.height, "white");
             }
         </script>
     </body>
