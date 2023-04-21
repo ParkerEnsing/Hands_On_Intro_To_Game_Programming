@@ -168,6 +168,7 @@
             // Calculates the x and y speed components based on bumper position
             function calculateReboundVelocity(ballPosY, bumperY, bumperHeight, minAngle, maxAngle, netSpeed) {
                 var angle = mapValue(ballPosY, bumperY, bumperY + bumperHeight, minAngle, maxAngle);
+                console.log(angle)
 
                 return {
                     x: netSpeed * Math.cos(angle),
@@ -180,6 +181,7 @@
                 // Adds score and resets game if ball touches a goal
                 scoreLeft = goalCollision(ballX, rightGoalX, GOAL_WIDTH, scoreLeft);
                 scoreRight = goalCollision(ballX, leftGoalX, GOAL_WIDTH, scoreRight);
+
                 // Ensures both bumpers remain in the canvas
                 checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
 
@@ -192,17 +194,18 @@
                 // If the ball hits a bumper for the first time, increase the speed
                 if (leftContact || rightContact) {
                     if (ballSpeed == SERVE_NORMAL_BALL_SPEED) {ballSpeed = NORMAL_BALL_SPEED};
-
+                    
                     var velocity;
                     // Checks for collision with either bumper
                     if (leftContact) {
-                        velocity = calculateReboundVelocity();
+                        velocity = calculateReboundVelocity(ballY, bumperLeftY, BUMPER_HEIGHT, -0.33 * Math.PI, 0.33 * Math.PI, ballSpeed);
                     }
 
                     if (rightContact) {
-                        velocity = calculateReboundVelocity();
+                        velocity = calculateReboundVelocity(ballY, bumperRightY, BUMPER_HEIGHT, 2 * 0.33 * Math.PI, 4 * 0.33 * Math.PI, ballSpeed);
                     }
 
+                    console.log(velocity.x, velocity.y);
                     ballSpeedX = velocity.x;
                     ballSpeedY = velocity.y;
                 }
