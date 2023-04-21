@@ -27,7 +27,7 @@
 
             // Goal Parameters
             const GOAL_WIDTH = NORMAL_BALL_SPEED + 1;
-            const LEFT_GOAL_X = -GOAL_WIDTH, RIGHT_GOAL_X = canvas.width;
+            var leftGoalX, rightGoalX;
 
             // Center Line Parameters
             const CENTER_LINE_WIDTH = 6;
@@ -52,7 +52,10 @@
                 // Determine bumper placement
                 bumperLeftX = BUMPER_SPACE_X;
                 bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
-                bumperRightY = 0.5 * canvas.height - 0.5 * BUMPER_HEIGHT
+                bumperRightY = 0.5 * canvas.height - 0.5 * BUMPER_HEIGHT;
+
+                // Determine goal placement
+                leftGoalX = -GOAL_WIDTH, rightGoalX = canvas.width;
 
                 // Create mouse event listener for user input
                 canvas.addEventListener("mousemove", function(evt) {
@@ -86,19 +89,19 @@
                 ballX = 0.5 * canvas.width;
                 ballY = 0.5 * canvas.height;
 
-                ballSpeed = SERVE_NORMAL_BALL_SPEED
-                var ballVelocity = calculateInitialVelocity(ballSpeed);
+                ballSpeed = SERVE_NORMAL_BALL_SPEED;
+                var ballVelocity = calculateInitialVelocity(ballSpeed, -0.33 * Math.PI, 0.33 * Math.PI);
                 ballSpeedX = ballVelocity.x;
                 ballSpeedY = ballVelocity.y;
             }
 
             // Keeps the bumpers within the canvas
             function checkBumperPosition(yMin, yMax) {
-                if (bumperLeftY < yMin) {bumperLeftY = 0}
-                if (bumperLeftY > yMax) {bumperLeftY = yMax}
-                
-                if (bumperRightY < yMin) {bumperRightY = 0}
-                if (bumperRightY > yMax) {bumperRightY = yMax}
+                if (bumperLeftY < yMin) {bumperLeftY = 0};
+                if (bumperLeftY > yMax) {bumperLeftY = yMax};
+
+                if (bumperRightY < yMin) {bumperRightY = 0};
+                if (bumperRightY > yMax) {bumperRightY = yMax};
             }
 
             // Determines ball behavior based on its position
@@ -113,16 +116,34 @@
 
             // Increments score and resets the game if the ball hits a goal
             function goalCollision(ballX, goalX, goalWidth, score) {
-                if (ballX >= goalX || ballX <= goalX + goalWidth) {
+                if (ballX >= goalX && ballX <= goalX + goalWidth) {
                     score += 1;
                     resetBall();
                 }
-
                 return score;
             }
 
-            function bumperCollision() {
+            // Checks whether the ball hit a specified bumper. Returns boolean
+            function bumperCollision(ballX, ballY, radius, bumperX, bumperY, bumperWidth, bumperHeight) {
+                var bumperHalfWidth = 0.5 * bumperWidth;
+                var bumperHalfHeight = 0.5 * bumperHeight;
 
+                var bumperCenterX = bumperX + bumperHalfWidth;
+                var bumperCenterY = bumperY + bumperHalfHeight;
+
+                var distanceX = Math.abs(ballX - bumperCenterX);
+                var distanceY = Math.abs(ballY - bumperCenterY);
+
+                if (distanceX > bumperHalfWidth + radius) {return false};
+                if (distanceY > bumperHalfHeight + radius) {return false};
+
+                if (distanceX <= bumperHalfWidth) {return true};
+                if (distanceY <= bumperHalfHeight) {return true};
+
+                var cornerDistanceX = distanceX - bumperHalfWidth;
+                var cornerDistanceY = distanceY - bumperHalfHeight;
+                
+                return cornerDistanceX * cornerDistanceX + cornerDistanceY * cornerDistanceY > radius * radius;
             }
 
             // Linearly interprets an output given two proportional ranges and an input
@@ -131,18 +152,22 @@
             }
 
             // Randomly selects an angle (0 to 2PI) and determines the x/y velocity components
-            function calculateInitialVelocity(netSpeed) {
-                initialAngle = Math.random() * Math.PI * 2;
+            function calculateInitialVelocity(netSpeed, minAngle, maxAngle) {
+                initialAngle = Math.random() * (maxAngle - minAngle) + minAngle;
+                
+                // Randomly generate an X direction
+                var dir = 1;
+                if (Math.random() < 0.5) {dir = -1};
 
                 return {
-                    x: netSpeed * Math.cos(initialAngle),
+                    x: dir * netSpeed * Math.cos(initialAngle),
                     y: netSpeed * Math.sin(initialAngle)
                 };
             }
 
             // Calculates the x and y speed components based on bumper position
             function calculateReboundVelocity(ballPosY, bumperY, bumperHeight, minAngle, maxAngle, netSpeed) {
-                var angle = mapValue(ballPosY, bumperY, bumperY + bumperHeight, minAngle, maxAngle)
+                var angle = mapValue(ballPosY, bumperY, bumperY + bumperHeight, minAngle, maxAngle);
 
                 return {
                     x: netSpeed * Math.cos(angle),
@@ -150,10 +175,45 @@
                 };
             }
 
+            // Calculates actors' positions
+            function moveEverything() {
+                // Adds score and resets game if ball touches a goal
+                scoreLeft = goalCollision(ballX, rightGoalX, GOAL_WIDTH, scoreLeft);
+                scoreRight = goalCollision(ballX, leftGoalX, GOAL_WIDTH, scoreRight);
+                // Ensures both bumpers remain in the canvas
+                checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
+
+                // Reverses vertical speed if ball touches top or bottom
+                ballSpeedY = verticalCollision(ballY, BALL_RADIUS, ballSpeedY);
+
+                var leftContact = bumperCollision(ballX, ballY, BALL_RADIUS, bumperLeftX, bumperLeftY, BUMPER_WIDTH, BUMPER_HEIGHT);
+                var rightContact = bumperCollision(ballX, ballY, BALL_RADIUS, bumperRightX, bumperRightY, BUMPER_WIDTH, BUMPER_HEIGHT);
+
+                // If the ball hits a bumper for the first time, increase the speed
+                if (leftContact || rightContact) {
+                    if (ballSpeed == SERVE_NORMAL_BALL_SPEED) {ballSpeed = NORMAL_BALL_SPEED};
+
+                    var velocity;
+                    // Checks for collision with either bumper
+                    if (leftContact) {
+                        velocity = calculateReboundVelocity();
+                    }
+
+                    if (rightContact) {
+                        velocity = calculateReboundVelocity();
+                    }
+
+                    ballSpeedX = velocity.x;
+                    ballSpeedY = velocity.y;
+                }
+                ballX += ballSpeedX;
+                ballY += ballSpeedY;
+            }
+
             // Draws filled rectangles
             function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor) {
                 canvasContext.fillStyle = fillColor;
-                canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight)
+                canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight);
             }
 
             // Draws filled circles
@@ -184,37 +244,13 @@
                 canvasContext.fillText(message, textX, textY);
             }
 
-            // Calculates actors' positions
-            function moveEverything() {
-                // Adds score and resets game if ball touches a goal
-                leftScore = goalCollision(ballX, RIGHT_GOAL_X, GOAL_WIDTH);
-                rightScore = goalCollision(ballX, LEFT_GOAL_X, GOAL_WIDTH);
-
-                // Ensures both bumpers remain in the canvas
-                checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
-
-                // Reverses vertical speed if ball touches top or bottom
-                ballSpeedY = verticalCollision(ballY, BALL_RADIUS, ballSpeedY);
-
-                // Calculates ball speed components based on bumper hit
-                ballCollisionState = bumperCollision()
-
-                // Moves the ball and increases the speed when it touches a bumper for the first time
-                if (ballCollisionState.contact) {
-                    if (ballSpeed == SERVE_NORMAL_BALL_SPEED) {ballSpeed = NORMAL_BALL_SPEED}
-                }
-
-                ballX += ballSpeedX;
-                ballY += ballSpeedY;
-            }
-
             // Draws game actors in the canvas
             function drawEverything() {
                 // Fill background with black
                 colorRect(0, 0, canvas.width, canvas.height, "black");
 
                 // Draw the ball
-                colorCircle(ballX, ballY, BALL_RADIUS, "white")
+                colorCircle(ballX, ballY, BALL_RADIUS, "white");
 
                 // Draw the left bumper
                 colorRect(bumperLeftX, bumperLeftY, BUMPER_WIDTH, BUMPER_HEIGHT, "white");
