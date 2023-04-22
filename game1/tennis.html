@@ -38,6 +38,9 @@
             // Gameplay Parameters
             var scoreLeft = 0; scoreRight = 0;
             var maxReboundAngle = 0.33 * Math.Pi;
+
+            // AI Parameters
+            const AI_TRACK_SPEED = 5;
             
             // Loads game in browser
             window.onload = function() {
@@ -61,7 +64,6 @@
                 canvas.addEventListener("mousemove", function(evt) {
                     var mousePos = calculateMousePosition(evt);
                     bumperLeftY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
-                    //bumperRightY = mousePos.y - 0.5 * BUMPER_HEIGHT; // Centers the bumper on mouse Y pos
                 });
 
                 // Per frame calculation
@@ -176,6 +178,19 @@
                 };
             }
 
+            // Determines the AI bumper speed
+            function moveAIBumperSpeed(ballY, aiBumperY, aiMoveSpeed) {
+                var moveDirection;
+
+                if (ballY <= aiBumperY + 0.5 * BUMPER_HEIGHT) {
+                    moveDirection = -1;
+                } else {
+                    moveDirection = 1;
+                }
+
+                return moveDirection * aiMoveSpeed;
+            }
+
             // Calculates actors' positions
             function moveEverything() {
                 // Adds score and resets game if ball touches a goal
@@ -209,6 +224,9 @@
                     ballSpeedX = velocity.x;
                     ballSpeedY = velocity.y;
                 }
+
+                bumperRightY += moveAIBumperSpeed(ballY, bumperRightY, AI_TRACK_SPEED);
+
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
             }
