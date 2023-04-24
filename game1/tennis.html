@@ -37,10 +37,11 @@
 
             // Gameplay Parameters
             var scoreLeft = 0; scoreRight = 0;
+            const SCORE_TO_WIN = 3;
             var maxReboundAngle = 0.33 * Math.Pi;
 
             // AI Parameters
-            const AI_TRACK_SPEED = 7;
+            const AI_TRACK_SPEED = 1;
             const AI_DETECTION_DISTANCE = 35;
             
             // Loads game in browser
@@ -50,7 +51,7 @@
                 canvasContext = canvas.getContext("2d");
 
                 // Initialize the game
-                var framesPerSecond = 30;
+                const FRAMES_PER_SECOND = 30;
                 resetBall();
 
                 // Determine bumper placement
@@ -71,7 +72,7 @@
                 setInterval(function() {
                     moveEverything();
                     drawEverything();
-                }, 0.001 * framesPerSecond);
+                }, 0.001 * FRAMES_PER_SECOND);
             }
 
             // Determines the mouse position
@@ -89,6 +90,11 @@
 
             // Places the ball back in the center and gives it a random direction of motion
             function resetBall() {
+                if (scoreLeft >= SCORE_TO_WIN || scoreRight >= SCORE_TO_WIN) {
+                    scoreLeft = 0;
+                    scoreRight = 0;
+                }
+
                 ballX = 0.5 * canvas.width;
                 ballY = 0.5 * canvas.height;
 
@@ -113,6 +119,9 @@
                 if (ballY < buffer || ballY > canvas.height - buffer) {
                     ballSpeedY *= -1;
                 }
+
+                if (ballY <= buffer) {ballY = buffer + 1};
+                if (ballY >= canvas.height - buffer) {ballY = canvas.height - buffer - 1};
 
                 return ballSpeedY;
             }
@@ -225,7 +234,6 @@
                         velocity = calculateReboundVelocity(ballY, bumperRightY, BUMPER_HEIGHT, 4 * 0.33 * Math.PI, 2 * 0.33 * Math.PI, ballSpeed);
                     }
 
-                    console.log(velocity.x, velocity.y);
                     ballSpeedX = velocity.x;
                     ballSpeedY = velocity.y;
                 }
