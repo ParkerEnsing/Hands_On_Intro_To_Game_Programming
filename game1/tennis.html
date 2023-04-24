@@ -40,7 +40,8 @@
             var maxReboundAngle = 0.33 * Math.Pi;
 
             // AI Parameters
-            const AI_TRACK_SPEED = 5;
+            const AI_TRACK_SPEED = 7;
+            const AI_DETECTION_DISTANCE = 35;
             
             // Loads game in browser
             window.onload = function() {
@@ -170,7 +171,6 @@
             // Calculates the x and y speed components based on bumper position
             function calculateReboundVelocity(ballPosY, bumperY, bumperHeight, minAngle, maxAngle, netSpeed) {
                 var angle = mapValue(ballPosY, bumperY, bumperY + bumperHeight, minAngle, maxAngle);
-                console.log(angle)
 
                 return {
                     x: netSpeed * Math.cos(angle),
@@ -182,10 +182,12 @@
             function moveAIBumperSpeed(ballY, aiBumperY, aiMoveSpeed) {
                 var moveDirection;
 
-                if (ballY <= aiBumperY + 0.5 * BUMPER_HEIGHT) {
+                if (ballY <= aiBumperY + 0.5 * BUMPER_HEIGHT - AI_DETECTION_DISTANCE) {
                     moveDirection = -1;
-                } else {
+                } else if (ballY >= aiBumperY + 0.5 * BUMPER_HEIGHT + AI_DETECTION_DISTANCE) {
                     moveDirection = 1;
+                } else {
+                    moveDirection = 0;
                 }
 
                 return moveDirection * aiMoveSpeed;
@@ -193,6 +195,9 @@
 
             // Calculates actors' positions
             function moveEverything() {
+                // Moves AI paddle
+                bumperRightY += moveAIBumperSpeed(ballY, bumperRightY, AI_TRACK_SPEED);
+
                 // Adds score and resets game if ball touches a goal
                 scoreLeft = goalCollision(ballX, rightGoalX, GOAL_WIDTH, scoreLeft);
                 scoreRight = goalCollision(ballX, leftGoalX, GOAL_WIDTH, scoreRight);
@@ -224,8 +229,6 @@
                     ballSpeedX = velocity.x;
                     ballSpeedY = velocity.y;
                 }
-
-                bumperRightY += moveAIBumperSpeed(ballY, bumperRightY, AI_TRACK_SPEED);
 
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
