@@ -51,13 +51,13 @@
                 canvasContext = canvas.getContext("2d");
 
                 // Initialize the game
-                const FRAMES_PER_SECOND = 30;
-                resetBall();
-
                 // Determine bumper placement
                 bumperLeftX = BUMPER_SPACE_X;
                 bumperRightX = canvas.width - BUMPER_SPACE_X - BUMPER_WIDTH;
                 bumperRightY = 0.5 * canvas.height - 0.5 * BUMPER_HEIGHT;
+
+                const FRAMES_PER_SECOND = 30;
+                resetBall();
 
                 // Determine goal placement
                 leftGoalX = -GOAL_WIDTH, rightGoalX = canvas.width;
@@ -207,10 +207,6 @@
                 // Moves AI paddle
                 bumperRightY += moveAIBumperSpeed(ballY, bumperRightY, AI_TRACK_SPEED);
 
-                // Adds score and resets game if ball touches a goal
-                scoreLeft = goalCollision(ballX, rightGoalX, GOAL_WIDTH, scoreLeft);
-                scoreRight = goalCollision(ballX, leftGoalX, GOAL_WIDTH, scoreRight);
-
                 // Ensures both bumpers remain in the canvas
                 checkBumperPosition(0, canvas.height - BUMPER_HEIGHT);
 
@@ -237,6 +233,10 @@
                     ballSpeedX = velocity.x;
                     ballSpeedY = velocity.y;
                 }
+
+                // Adds score and resets game if ball touches a goal
+                scoreLeft = goalCollision(ballX, rightGoalX, GOAL_WIDTH, scoreLeft);
+                scoreRight = goalCollision(ballX, leftGoalX, GOAL_WIDTH, scoreRight);
 
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
