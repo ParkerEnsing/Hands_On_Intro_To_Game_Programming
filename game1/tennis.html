@@ -90,11 +90,6 @@
 
             // Places the ball back in the center and gives it a random direction of motion
             function resetBall() {
-                if (scoreLeft >= SCORE_TO_WIN || scoreRight >= SCORE_TO_WIN) {
-                    scoreLeft = 0;
-                    scoreRight = 0;
-                }
-
                 ballX = 0.5 * canvas.width;
                 ballY = 0.5 * canvas.height;
 
@@ -127,12 +122,10 @@
             }
 
             // Increments score and resets the game if the ball hits a goal
-            function goalCollision(ballX, goalX, goalWidth, score) {
+            function goalCollision(ballX, goalX, goalWidth) {
                 if (ballX >= goalX && ballX <= goalX + goalWidth) {
-                    score += 1;
                     resetBall();
                 }
-                return score;
             }
 
             // Checks whether the ball hit a specified bumper. Returns boolean
@@ -234,9 +227,9 @@
                     ballSpeedY = velocity.y;
                 }
 
-                // Adds score and resets game if ball touches a goal
-                scoreLeft = goalCollision(ballX, rightGoalX, GOAL_WIDTH, scoreLeft);
-                scoreRight = goalCollision(ballX, leftGoalX, GOAL_WIDTH, scoreRight);
+                // Resets game if ball touches a goal
+                goalCollision(ballX, rightGoalX, GOAL_WIDTH);
+                goalCollision(ballX, leftGoalX, GOAL_WIDTH);
 
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
@@ -294,8 +287,8 @@
                 dashedLine(0.5 * canvas.width, 0, 0.5 * canvas.width, canvas.height, CENTER_LINE_WIDTH, 0.1 * canvas.height, 0.05 * canvas.height, "white");
 
                 // Draw scores
-                text(scoreLeft, TEXT_MARGIN, TEXT_MARGIN, "left", "white"); // left score
-                text(scoreRight, canvas.width - TEXT_MARGIN, TEXT_MARGIN, "right", "white"); // right score
+                //text(scoreLeft, TEXT_MARGIN, TEXT_MARGIN, "left", "white"); // left score
+                //text(scoreRight, canvas.width - TEXT_MARGIN, TEXT_MARGIN, "right", "white"); // right score
             }
         </script>
     </body>
